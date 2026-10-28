@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Костик и тайны скелета</title>
+<meta name="description" content="Онлайн-игра для 3 класса по теме «Опора тела и движение»: кости, мышцы и осанка.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2B2A5A; --muted:#6B6A8E; --violet:#6C5CE7; --indigo:#3B2F8F; --lilac:#B9A9FF; --lilac-soft:#EEEAFF;
+  --sky:#3BA7F5; --sky-soft:#E3F2FF; --mint:#1FB89A; --mint-soft:#DDF7EE; --sun:#FFC23C; --sun-soft:#FFF3CF;
+  --coral:#FF6B6B; --coral-soft:#FFE4E1; --green:#22B573; --red:#F0505A; --card:#fff; --radius:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{min-height:100%;background:linear-gradient(160deg,#EAF5FF 0%,#F3EEFF 55%,#FFF4DE 100%)}
+body{margin:0;min-height:100vh}
+body{font-family:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);font-weight:600;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
+  background:radial-gradient(circle at 92% 8%,#BDEFE0 0 160px,transparent 360px),radial-gradient(circle at 6% 94%,#FFE7A3 0 160px,transparent 380px),
+  radial-gradient(circle at 96% 92%,#DCD2FF 0 140px,transparent 330px)}
+.wrap{position:relative;max-width:1040px;margin:0 auto;padding:18px 16px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px}
+.brand svg{width:44px;height:44px}
+.stars{display:flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:6px 14px;box-shadow:0 6px 18px rgba(43,42,90,.10);font-weight:900}
+.screen{display:none;animation:pop .45s cubic-bezier(.2,1.3,.4,1)}
+.screen.on{display:block}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:center;background:#fff;border-radius:32px;padding:28px;box-shadow:0 14px 40px rgba(43,42,90,.12)}
+.kicker{display:inline-block;background:var(--violet);color:#fff;border-radius:999px;padding:6px 14px;font-size:13px;letter-spacing:.12em;font-weight:900}
+h1{font-weight:900;font-size:clamp(30px,5vw,48px);line-height:1.05;margin:14px 0 10px}
+h1 span{color:var(--coral)}
+h2{font-weight:900;font-size:clamp(24px,3.6vw,34px);margin:6px 0 6px}
+p.lead{font-size:18px;color:var(--muted);margin:0 0 18px}
+.levels{display:grid;gap:10px;margin:0 0 22px;padding:0;list-style:none}
+.levels li{display:flex;align-items:center;gap:12px;background:var(--lilac-soft);border-radius:16px;padding:10px 14px;font-size:17px}
+.levels b{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:50%;background:var(--violet);color:#fff;font-weight:900}
+.mascot-big{display:grid;place-items:center}
+.mascot-big svg{width:min(320px,80%);height:auto;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 18px 18px rgba(43,42,90,.18))}
+@keyframes bob{50%{transform:translateY(-10px) rotate(-2deg)}}
+.btn{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:900;font-size:20px;color:#fff;background:var(--coral);border-radius:999px;
+  padding:14px 30px;box-shadow:0 6px 0 #D94B57,0 12px 22px rgba(240,80,90,.3);transition:transform .12s, box-shadow .12s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #D94B57}
+.btn.violet{background:var(--violet);box-shadow:0 6px 0 #4F40C9,0 12px 22px rgba(108,92,231,.3)}
+.btn.mint{background:var(--mint);box-shadow:0 6px 0 #138A72,0 12px 22px rgba(31,184,154,.3)}
+.btn.ghost{background:#fff;color:var(--ink);box-shadow:0 6px 0 #D8D2F5,0 10px 20px rgba(43,42,90,.12)}
+.panel{background:#fff;border-radius:32px;padding:22px;box-shadow:0 14px 40px rgba(43,42,90,.12)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.progress{height:12px;background:var(--lilac-soft);border-radius:99px;overflow:hidden;margin:6px 0 16px}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--sky));border-radius:99px;transition:width .4s}
+.say{display:flex;align-items:center;gap:12px;background:var(--sun-soft);border-radius:18px;padding:10px 14px;margin-bottom:16px;font-size:17px}
+.say svg{flex:0 0 46px;width:46px;height:46px}
+/* level 1 */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.col{display:grid;gap:10px;align-content:start}
+.col h3{margin:0 0 2px;font-size:16px;color:var(--muted);font-weight:900;letter-spacing:.06em}
+.chip{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:3px solid transparent;background:var(--sky-soft);border-radius:18px;padding:12px 14px;
+  font:inherit;font-size:17px;font-weight:800;color:var(--ink);cursor:pointer;transition:transform .15s,border-color .15s,background .15s}
+.chip .e{font-size:26px;line-height:1}
+.chip.job{background:var(--lilac-soft)}
+.chip:hover{transform:translateY(-2px)}
+.chip.sel{border-color:var(--violet);background:#fff;box-shadow:0 0 0 4px rgba(108,92,231,.18)}
+.chip.done{background:#E3F8EC;border-color:var(--green);cursor:default;opacity:.85}
+.chip.done:after{content:"✓";margin-left:auto;font-weight:900;color:var(--green);font-size:22px}
+.shake{animation:shake .45s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(5px)}}
+/* level 2 */
+.q{font-size:clamp(22px,3.4vw,30px);font-weight:900;text-align:center;margin:12px 0 18px;min-height:2.4em;display:grid;place-items:center}
+.timer{height:14px;border-radius:99px;background:#FFE7C2;overflow:hidden;margin:4px 0 14px}
+.timer i{display:block;height:100%;background:linear-gradient(90deg,var(--sun),var(--coral));width:100%}
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tf .btn{font-size:22px;padding:18px}
+.fb{min-height:56px;text-align:center;font-size:18px;margin-top:14px;border-radius:16px;padding:10px;display:none}
+.fb.ok{display:block;background:#E3F8EC;color:#138A55}
+.fb.no{display:block;background:var(--coral-soft);color:#C23A44}
+/* level 3 */
+.pool{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:16px;min-height:60px}
+.habit{border:0;font:inherit;font-weight:800;font-size:16px;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 4px 0 #E1DCF7,0 8px 16px rgba(43,42,90,.10);cursor:pointer;color:var(--ink)}
+.habit.sel{outline:4px solid var(--violet)}
+.baskets{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.basket{border:3px dashed var(--lilac);border-radius:24px;padding:14px;min-height:170px;cursor:pointer;transition:background .2s}
+.basket h3{margin:0 0 10px;font-weight:900;font-size:22px;display:flex;align-items:center;gap:8px}
+.basket.good{background:#F0FBF6;border-color:var(--mint)}
+.basket.bad{background:#FFF3F2;border-color:var(--coral)}
+.basket.hot{transform:scale(1.02)}
+.basket .in{display:flex;flex-wrap:wrap;gap:8px}
+.basket .in span{background:#fff;border-radius:12px;padding:8px 10px;font-size:15px}
+/* final */
+.diploma{position:relative;border-radius:30px;padding:28px 24px;background:linear-gradient(140deg,#FFF6D8,#FFE3B5);text-align:center;border:6px solid #fff;
+  box-shadow:0 0 0 4px var(--sun),0 20px 40px rgba(201,138,0,.25)}
+.diploma .big{font-size:clamp(30px,5vw,46px);font-weight:900;margin:6px 0}
+.diploma .name{font-size:clamp(26px,4vw,38px);font-weight:900;color:var(--violet);min-height:1.2em}
+.st{font-size:48px;letter-spacing:6px}
+input.nm{font:inherit;font-weight:800;font-size:20px;border:3px solid var(--lilac);border-radius:16px;padding:12px 14px;width:min(360px,100%);text-align:center;color:var(--ink)}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+canvas#conf{position:fixed;inset:0;pointer-events:none;z-index:50}
+footer{text-align:center;color:var(--muted);font-size:13px;margin-top:22px}
+@media (max-width:720px){
+  .hero{grid-template-columns:1fr;padding:20px}
+  .mascot-big{order:-1}.mascot-big svg{width:180px}
+  .match{grid-template-columns:1fr}
+  .baskets{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<canvas id="conf"></canvas>
+<div class="wrap">
+  <header>
+    <div class="brand"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#kostik-head"/></svg>Костик и тайны скелета</div>
+    <div class="stars" aria-live="polite">⭐ <span id="score">0</span></div>
+  </header>
+
+  <!-- START -->
+  <section class="screen on" id="s-start">
+    <div class="hero">
+      <div>
+        <span class="kicker">ОКРУЖАЮЩИЙ МИР · 3 КЛАСС</span>
+        <h1>Костик и <span>тайны скелета</span></h1>
+        <p class="lead">Привет! Я Костик. Пройди три уровня, собери звёзды и получи диплом знатока скелета!</p>
+        <ul class="levels">
+          <li><b>1</b>Чья это работа? Найди пары</li>
+          <li><b>2</b>Верно или неверно — на время</li>
+          <li><b>3</b>Полезно или вредно для осанки?</li>
+        </ul>
+        <button class="btn" id="go">Начать игру ▶</button>
+      </div>
+      <div class="mascot-big"><svg viewBox="0 0 200 260" role="img" aria-label="Костик — весёлый скелетик"><use href="#kostik-full"/></svg></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 1 -->
+  <section class="screen" id="s-l1">
+    <div class="panel">
+      <div class="top"><span class="kicker">УРОВЕНЬ 1</span><span id="l1-left" style="font-weight:900;color:var(--muted)"></span></div>
+      <h2>Чья это работа?</h2>
+      <div class="progress"><i id="l1-bar"></i></div>
+      <div class="say"><svg viewBox="0 0 100 100"><use href="#kostik-head"/></svg><span id="l1-say">Нажми на часть тела, а потом — на её работу.</span></div>
+      <div class="match">
+        <div class="col" id="l1-parts"><h3>ЧАСТИ ТЕЛА</h3></div>
+        <div class="col" id="l1-jobs"><h3>ЧТО ДЕЛАЕТ</h3></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEVEL 2 -->
+  <section class="screen" id="s-l2">
+    <div class="panel">
+      <div class="top"><span class="kicker" style="background:var(--mint)">УРОВЕНЬ 2</span><span id="l2-count" style="font-weight:900;color:var(--muted)"></span></div>
+      <h2>Верно или неверно?</h2>
+      <div class="timer"><i id="l2-timer"></i></div>
+      <div class="q" id="l2-q"></div>
+      <div class="tf">
+        <button class="btn mint" data-a="1">Верно 👍</button>
+        <button class="btn" data-a="0">Неверно 👎</button>
+      </div>
+      <div class="fb" id="l2-fb"></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 3 -->
+  <section class="screen" id="s-l3">
+    <div class="panel">
+      <div class="top"><span class="kicker" style="background:var(--coral)">УРОВЕНЬ 3</span><span id="l3-left" style="font-weight:900;color:var(--muted)"></span></div>
+      <h2>Полезно или вредно для осанки?</h2>
+      <div class="say"><svg viewBox="0 0 100 100"><use href="#kostik-head"/></svg><span id="l3-say">Выбери привычку, а потом нажми на корзинку.</span></div>
+      <div class="pool" id="l3-pool"></div>
+      <div class="baskets">
+        <div class="basket good" data-b="1" role="button" tabindex="0"><h3>👍 Полезно</h3><div class="in"></div></div>
+        <div class="basket bad" data-b="0" role="button" tabindex="0"><h3>👎 Вредно</h3><div class="in"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL -->
+  <section class="screen" id="s-end">
+    <div class="panel">
+      <div class="diploma">
+        <div class="st" id="end-stars">⭐⭐⭐</div>
+        <div class="big">Диплом знатока скелета</div>
+        <div style="font-size:18px;color:var(--muted)">вручается</div>
+        <div class="name" id="end-name">Юному исследователю</div>
+        <div style="font-size:18px;margin-top:6px">за отличное знание темы «Опора тела и движение»</div>
+        <div style="font-size:17px;margin-top:10px;color:var(--muted)" id="end-score"></div>
+      </div>
+      <div class="row">
+        <input class="nm" id="nm" placeholder="Впиши своё имя" maxlength="30" aria-label="Твоё имя">
+      </div>
+      <div class="row">
+        <button class="btn violet" id="again">Сыграть ещё раз ↻</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>Урок «Опора тела и движение» · автор: Шелешко А.И., П-31</footer>
+</div>
+
+<!-- Kostik artwork -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="bone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFDF7"/><stop offset="1" stop-color="#F1E6D2"/></linearGradient>
+    <g id="kostik-head">
+      <ellipse cx="50" cy="55" rx="36" ry="34" fill="url(#bone)" stroke="#E2D3B8" stroke-width="2"/>
+      <path d="M30 78 q20 14 40 0 v8 q-20 10 -40 0z" fill="url(#bone)" stroke="#E2D3B8" stroke-width="2"/>
+      <ellipse cx="37" cy="55" rx="9" ry="11" fill="#2B2A5A"/><ellipse cx="63" cy="55" rx="9" ry="11" fill="#2B2A5A"/>
+      <circle cx="39" cy="51" r="4" fill="#3BA7F5"/><circle cx="65" cy="51" r="4" fill="#3BA7F5"/>
+      <circle cx="40.5" cy="49.5" r="1.6" fill="#fff"/><circle cx="66.5" cy="49.5" r="1.6" fill="#fff"/>
+      <ellipse cx="27" cy="67" rx="5" ry="3" fill="#FFB3B3" opacity=".7"/><ellipse cx="73" cy="67" rx="5" ry="3" fill="#FFB3B3" opacity=".7"/>
+      <path d="M40 72 q10 8 20 0" fill="none" stroke="#2B2A5A" stroke-width="3" stroke-linecap="round"/>
+      <path d="M14 40 q36 -40 72 0 q-36 -10 -72 0z" fill="#FF9F43"/>
+      <path d="M14 40 q36 -10 72 0 l12 4 q-48 -6 -84 -4z" fill="#F07F1A"/>
+      <circle cx="50" cy="22" r="4" fill="#F07F1A"/>
+    </g>
+    <g id="kostik-full">
+      <g transform="translate(50 0) scale(1)">
+        <use href="#kostik-head" transform="translate(0 0) scale(1)"/>
+      </g>
+      <g stroke="#E2D3B8" stroke-width="2" fill="url(#bone)">
+        <rect x="94" y="96" width="12" height="70" rx="6"/>
+        <path d="M76 110 q24 10 48 0 v10 q-24 10 -48 0z"/><path d="M78 126 q22 9 44 0 v9 q-22 9 -44 0z"/><path d="M80 141 q20 8 40 0 v9 q-20 8 -40 0z"/>
+        <path d="M78 164 q22 -10 44 0 l-4 14 q-18 8 -36 0z"/>
+        <rect x="58" y="104" width="10" height="44" rx="5" transform="rotate(25 63 104)"/>
+        <rect x="132" y="104" width="10" height="44" rx="5" transform="rotate(-140 137 104)"/>
+        <circle cx="158" cy="70" r="9"/>
+        <circle cx="44" cy="148" r="8"/>
+        <rect x="84" y="176" width="11" height="54" rx="5.5"/><rect x="105" y="176" width="11" height="54" rx="5.5"/>
+      </g>
+      <path d="M74 228 h26 q6 0 6 8 v6 h-36 v-6 q0 -8 4 -8z" fill="#F0505A"/><path d="M100 228 h26 q4 0 4 8 v6 h-36 v-6 q0 -8 6 -8z" fill="#F0505A"/>
+      <rect x="70" y="240" width="36" height="6" rx="3" fill="#FFC23C"/><rect x="94" y="240" width="36" height="6" rx="3" fill="#FFC23C"/>
+    </g>
+  </defs>
+</svg>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  let score = 0, mistakes = 0;
+  const setScore = d => { score = Math.max(0, score + d); $("#score").textContent = score; };
+
+  // ---------- sound (Web Audio, no files)
+  let ac;
+  function tone(freqs, dur = .18, type = "sine", gap = .09, vol = .18) {
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      freqs.forEach((f, i) => {
+        const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + i * gap;
+        o.type = type; o.frequency.setValueAtTime(f, t);
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+        o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur + .02);
+      });
+    } catch (e) {}
+  }
+  const good = () => tone([1046, 1318, 1568], .5);
+  const bad = () => tone([300, 220], .35, "triangle", .12, .2);
+  const win = () => tone([523, 659, 784, 1046, 784, 1046], .45, "sine", .11, .16);
+
+  // ---------- confetti
+  const cv = $("#conf"), cx = cv.getContext("2d");
+  let parts = [];
+  function confetti(n = 140) {
+    cv.width = innerWidth; cv.height = innerHeight;
+    const cols = ["#6C5CE7", "#FF6B6B", "#1FB89A", "#FFC23C", "#3BA7F5", "#FF9F43"];
+    for (let i = 0; i < n; i++) parts.push({x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * .4, r: 5 + Math.random() * 6,
+      c: cols[i % cols.length], vx: -2 + Math.random() * 4, vy: 2 + Math.random() * 4, a: Math.random() * 6, va: -.2 + Math.random() * .4});
+    if (parts.length === n) requestAnimationFrame(step);
+  }
+  function step() {
+    cx.clearRect(0, 0, cv.width, cv.height);
+    parts.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .05; p.a += p.va;
+      cx.save(); cx.translate(p.x, p.y); cx.rotate(p.a); cx.fillStyle = p.c; cx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r); cx.restore(); });
+    parts = parts.filter(p => p.y < cv.height + 30);
+    if (parts.length) requestAnimationFrame(step); else cx.clearRect(0, 0, cv.width, cv.height);
+  }
+
+  const show = id => { document.querySelectorAll(".screen").forEach(s => s.classList.remove("on")); $(id).classList.add("on"); scrollTo({top: 0, behavior: "smooth"}); };
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const shake = el => { el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); };
+
+  // ---------- LEVEL 1: match part -> job
+  const PAIRS = [
+    {id: "skull", part: "Череп", e: "💀", job: "Защищает головной мозг"},
+    {id: "ribs", part: "Грудная клетка", e: "🫁", job: "Защищает сердце и лёгкие"},
+    {id: "spine", part: "Позвоночник", e: "🦴", job: "Главная опора тела"},
+    {id: "arms", part: "Кости рук", e: "✋", job: "Помогают брать предметы и писать"},
+    {id: "legs", part: "Кости ног", e: "🦵", job: "Держат вес тела, помогают ходить"},
+    {id: "muscles", part: "Мышцы", e: "💪", job: "Приводят кости в движение"},
+  ];
+  let selPart = null, done1 = 0;
+  function level1() {
+    done1 = 0; selPart = null;
+    const P = $("#l1-parts"), J = $("#l1-jobs");
+    P.querySelectorAll(".chip").forEach(c => c.remove()); J.querySelectorAll(".chip").forEach(c => c.remove());
+    shuffle(PAIRS).forEach(p => P.insertAdjacentHTML("beforeend", `<button class="chip" data-id="${p.id}"><span class="e">${p.e}</span>${p.part}</button>`));
+    shuffle(PAIRS).forEach(p => J.insertAdjacentHTML("beforeend", `<button class="chip job" data-id="${p.id}">${p.job}</button>`));
+    upd1();
+    P.querySelectorAll(".chip").forEach(b => b.onclick = () => {
+      if (b.classList.contains("done")) return;
+      P.querySelectorAll(".chip").forEach(x => x.classList.remove("sel"));
+      b.classList.add("sel"); selPart = b; tone([660], .12);
+      $("#l1-say").textContent = "Отлично! Теперь выбери, что делает «" + b.textContent.replace(/^\S+\s?/, "").trim() + "».";
+    });
+    J.querySelectorAll(".chip").forEach(b => b.onclick = () => {
+      if (b.classList.contains("done")) return;
+      if (!selPart) { shake(b); $("#l1-say").textContent = "Сначала выбери часть тела слева!"; return; }
+      if (b.dataset.id === selPart.dataset.id) {
+        b.classList.add("done"); selPart.classList.add("done"); selPart.classList.remove("sel"); selPart = null;
+        done1++; setScore(1); good(); upd1();
+        $("#l1-say").textContent = ["Верно!", "Молодец!", "Супер!", "Так держать!", "Правильно!"][done1 % 5];
+        if (done1 === PAIRS.length) { confetti(90); win(); setTimeout(() => { show("#s-l2"); level2(); }, 1300); }
+      } else { shake(b); bad(); mistakes++; $("#l1-say").textContent = "Не совсем. Подумай ещё!"; }
+    });
+  }
+  const upd1 = () => { $("#l1-bar").style.width = (done1 / PAIRS.length * 100) + "%"; $("#l1-left").textContent = `Пар найдено: ${done1} из ${PAIRS.length}`; };
+
+  // ---------- LEVEL 2: true / false with timer
+  const TF = [
+    ["У взрослого человека 206 костей", 1, "Да! А у малыша их около 300 — потом часть срастается."],
+    ["Скелет защищает внутренние органы", 1, "Верно: череп бережёт мозг, рёбра — сердце и лёгкие."],
+    ["Позвоночник — это одна длинная кость", 0, "Нет! В нём 33–34 позвонка, поэтому он гибкий."],
+    ["Мышцы крепятся к костям сухожилиями", 1, "Верно! Мышца сокращается и тянет кость."],
+    ["Суставы — это неподвижные соединения костей", 0, "Нет! Суставы — подвижные соединения костей."],
+    ["Сердце — тоже мышца", 1, "Да! Оно работает без отдыха всю жизнь."],
+    ["Носить тяжёлую сумку на одном плече полезно", 0, "Нет! Рюкзак носят на двух плечах."],
+    ["Самая длинная кость — бедренная", 1, "Верно! Она в бедре, выше колена."],
+  ];
+  const TIME = 12;
+  let order, qi, tLeft, tick, locked;
+  function level2() { order = shuffle(TF); qi = 0; nextQ(); }
+  function nextQ() {
+    if (qi >= order.length) { confetti(90); win(); setTimeout(() => { show("#s-l3"); level3(); }, 1200); return; }
+    locked = false; const [q] = order[qi];
+    $("#l2-q").textContent = q; $("#l2-count").textContent = `Вопрос ${qi + 1} из ${order.length}`;
+    const fb = $("#l2-fb"); fb.className = "fb"; fb.textContent = "";
+    tLeft = TIME; const bar = $("#l2-timer"); bar.style.transition = "none"; bar.style.width = "100%";
+    requestAnimationFrame(() => { bar.style.transition = `width ${TIME}s linear`; bar.style.width = "0%"; });
+    clearTimeout(tick); tick = setTimeout(() => answer(null), TIME * 1000);
+  }
+  function answer(a) {
+    if (locked) return; locked = true; clearTimeout(tick);
+    const [, right, why] = order[qi], fb = $("#l2-fb"), bar = $("#l2-timer");
+    bar.style.transition = "none"; bar.style.width = getComputedStyle(bar).width;
+    if (a === right) { fb.className = "fb ok"; fb.textContent = "✓ " + why; setScore(1); good(); }
+    else { fb.className = "fb no"; fb.textContent = (a === null ? "⏰ Время вышло! " : "✗ ") + why; mistakes++; bad(); }
+    qi++; setTimeout(nextQ, 2300);
+  }
+  document.querySelectorAll("#s-l2 [data-a]").forEach(b => b.onclick = () => answer(+b.dataset.a));
+
+  // ---------- LEVEL 3: sort habits
+  const HAB = [
+    ["Сидеть прямо, ноги на полу", 1], ["Носить рюкзак на двух плечах", 1], ["Делать зарядку", 1], ["Спать на ровной кровати", 1],
+    ["Плавать в бассейне", 1], ["Сидеть сгорбившись", 0], ["Носить сумку на одном плече", 0], ["Читать лёжа", 0],
+    ["Целый день сидеть без движения", 0], ["Низко наклоняться к тетради", 0],
+  ];
+  let selH = null, left3;
+  function level3() {
+    const pool = $("#l3-pool"); pool.innerHTML = ""; selH = null; left3 = HAB.length;
+    document.querySelectorAll(".basket .in").forEach(x => x.innerHTML = "");
+    shuffle(HAB).forEach(([t, g]) => {
+      const b = document.createElement("button"); b.className = "habit"; b.textContent = t; b.dataset.g = g;
+      b.onclick = () => { pool.querySelectorAll(".habit").forEach(x => x.classList.remove("sel")); b.classList.add("sel"); selH = b; tone([660], .12);
+        $("#l3-say").textContent = "Куда положим: «" + t + "»?"; };
+      pool.appendChild(b);
+    });
+    upd3();
+  }
+  const upd3 = () => $("#l3-left").textContent = `Осталось привычек: ${left3}`;
+  document.querySelectorAll(".basket").forEach(bk => {
+    const drop = () => {
+      if (!selH) { shake(bk); $("#l3-say").textContent = "Сначала выбери привычку!"; return; }
+      if (selH.dataset.g === bk.dataset.b) {
+        bk.querySelector(".in").insertAdjacentHTML("beforeend", `<span>${selH.textContent}</span>`);
+        selH.remove(); selH = null; left3--; upd3(); setScore(1); good();
+        $("#l3-say").textContent = bk.dataset.b === "1" ? "Верно, это полезно для осанки!" : "Верно, так делать не стоит!";
+        if (!left3) { setTimeout(finish, 900); }
+      } else { shake(selH); bad(); mistakes++; $("#l3-say").textContent = "Хм, подумай ещё раз!"; }
+    };
+    bk.onclick = drop; bk.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); drop(); } };
+  });
+
+  // ---------- FINAL
+  function finish() {
+    const st = mistakes <= 2 ? 3 : mistakes <= 6 ? 2 : 1;
+    $("#end-stars").textContent = "⭐".repeat(st) + "☆".repeat(3 - st);
+    $("#end-score").textContent = `Звёзд за ответы: ${score}. Ошибок: ${mistakes}.`;
+    show("#s-end"); confetti(200); win();
+  }
+  $("#nm").oninput = e => { $("#end-name").textContent = e.target.value.trim() || "Юному исследователю"; };
+  $("#go").onclick = () => { score = 0; mistakes = 0; setScore(0); show("#s-l1"); level1(); };
+  $("#again").onclick = () => { score = 0; mistakes = 0; setScore(0); show("#s-l1"); level1(); };
+  addEventListener("resize", () => { cv.width = innerWidth; cv.height = innerHeight; });
+})();
+</script>
+</body>
+</html>
