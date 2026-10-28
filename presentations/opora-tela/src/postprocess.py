@@ -2,7 +2,7 @@
 import os, re, sys, zipfile, shutil
 
 FONTS = [("Nunito", "regular", "~/.fonts/Nunito-Regular.ttf"), ("Nunito", "bold", "~/.fonts/Nunito-Bold.ttf"),
-         ("Nunito Black", "regular", "~/.fonts/NunitoBlack-Regular.ttf")]
+         ("Unbounded", "regular", "~/.fonts/Unbounded-Regular.ttf"), ("Caveat", "regular", "~/.fonts/Caveat-Regular.ttf")]
 RT_FONT = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/font"
 
 
@@ -21,7 +21,7 @@ def run(path):
             data = s.encode("utf-8")
         elif re.match(r"ppt/theme/theme\d+\.xml", name):
             s = data.decode("utf-8")
-            s = re.sub(r'(<a:majorFont><a:latin typeface=")[^"]*(")', r"\1Nunito Black\2", s)
+            s = re.sub(r'(<a:majorFont><a:latin typeface=")[^"]*(")', r"\1Unbounded\2", s)
             s = re.sub(r'(<a:minorFont><a:latin typeface=")[^"]*(")', r"\1Nunito\2", s)
             data = s.encode("utf-8")
         elif name == "ppt/_rels/presentation.xml.rels":

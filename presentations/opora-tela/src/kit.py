@@ -14,13 +14,17 @@ ASSETS = os.path.join(HERE, "assets")
 EMOJI = os.path.join(ASSETS, "emoji")
 IMG = os.path.join(HERE, "img")
 
-FONT = "Nunito"
-FONT_BLACK = "Nunito Black"
+FONT = "Nunito"          # body text
+DISPLAY = "Unbounded"    # titles and big numbers
+HAND = "Caveat"          # handwritten accents
+FONT_BLACK = DISPLAY
 FONT_FILES = {
     (FONT, False): os.path.expanduser("~/.fonts/Nunito-Regular.ttf"),
     (FONT, True): os.path.expanduser("~/.fonts/Nunito-Bold.ttf"),
-    (FONT_BLACK, False): os.path.expanduser("~/.fonts/NunitoBlack-Regular.ttf"),
-    (FONT_BLACK, True): os.path.expanduser("~/.fonts/NunitoBlack-Regular.ttf"),
+    (DISPLAY, False): os.path.expanduser("~/.fonts/Unbounded-Regular.ttf"),
+    (DISPLAY, True): os.path.expanduser("~/.fonts/Unbounded-Regular.ttf"),
+    (HAND, False): os.path.expanduser("~/.fonts/Caveat-Regular.ttf"),
+    (HAND, True): os.path.expanduser("~/.fonts/Caveat-Regular.ttf"),
 }
 
 C = {
@@ -382,3 +386,40 @@ def link_url(shape, url):
 
 def notes(slide, txt):
     slide.notes_slide.notes_text_frame.text = txt
+
+
+def badge(slide, path, x, y, d, center=(0.5, 0.5), side=0.5, name=None, ring="FFFFFF", ring_w=0.05, shadow_on=True,
+          descr=""):
+    """Round photo crop: center/side are fractions of the image (side of min(w, h))."""
+    from PIL import Image
+    iw, ih = Image.open(path).size
+    s = side * min(iw, ih)
+    cx, cy = center[0] * iw, center[1] * ih
+    l, t = max(0, min(iw - s, cx - s / 2)), max(0, min(ih - s, cy - s / 2))
+    pic = slide.shapes.add_picture(path, E(x), E(y), E(d), E(d))
+    pic.crop_left, pic.crop_right = l / iw, (iw - l - s) / iw
+    pic.crop_top, pic.crop_bottom = t / ih, (ih - t - s) / ih
+    pic._element.spPr.find(qn("a:prstGeom")).set("prst", "ellipse")
+    if ring:
+        pic.line.color.rgb = rgb(ring)
+        pic.line.width = E(ring_w)
+    if shadow_on:
+        shadow(pic, blur=0.2, dist=0.06, alpha=22)
+    set_name(pic, name or "badge")
+    set_descr(pic, descr)
+    return pic
+
+
+def glass(slide, x, y, w, h, alpha=88, radius=0.25, name="card", tint="FFFFFF", sh=True):
+    """Frosted card: translucent white with a soft shadow."""
+    b = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, E(x), E(y), E(w), E(h))
+    st = b._element.find(qn("p:style"))
+    if st is not None:
+        b._element.remove(st)
+    b.adjustments[0] = min(0.5, radius / min(w, h))
+    fill_alpha(b, tint, alpha)
+    b.line.fill.background()
+    if sh:
+        shadow(b, blur=0.35, dist=0.08, alpha=13, color="3B2F8F")
+    set_name(b, name)
+    return b

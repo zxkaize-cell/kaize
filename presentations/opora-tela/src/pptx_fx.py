@@ -98,7 +98,7 @@ ENTR = {
     "stretch_h": (17, 10), "bounce": (26, 0), "spin_in": (31, 0),
 }
 EXIT = {"fade_out": (10, 0), "zoom_out": (53, 16), "collapse_h": (17, 10)}
-EMPH = {"pulse": (6, 0), "shake": (32, 0), "spin": (8, 0)}
+EMPH = {"pulse": (6, 0), "shake": (32, 0), "spin": (8, 0), "grow": (6, 0)}
 MEDIA = {"play": (1, 0), "toggle": (2, 0)}
 
 
@@ -194,6 +194,10 @@ def _behaviours(ids, fx):
     elif k == "pulse":
         scale = fx.kw.get("scale", 112000)
         out.append(('<p:animScale><p:cBhvr><p:cTn id="%d" dur="%d" autoRev="1" fill="hold"/>%s</p:cBhvr>'
+                    '<p:by x="%d" y="%d"/></p:animScale>') % (ids.next(), d, _tgt(s), scale, scale))
+    elif k == "grow":
+        scale = fx.kw.get("scale", 107000)
+        out.append(('<p:animScale><p:cBhvr><p:cTn id="%d" dur="%d" decel="100000" fill="hold"/>%s</p:cBhvr>'
                     '<p:by x="%d" y="%d"/></p:animScale>') % (ids.next(), d, _tgt(s), scale, scale))
     elif k == "shake":
         a = 240000
