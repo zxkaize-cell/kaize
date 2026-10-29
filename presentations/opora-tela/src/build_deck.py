@@ -14,8 +14,8 @@ from pptx.oxml.ns import qn
 from pptx.util import Emu, Pt
 
 import kit
-from kit import (C, E, FONT, DISPLAY, HAND, ASSETS, IMG, text, shape_text, shadow, bevel, transparent_fill, set_name,
-                 set_descr, link_slide, link_url, notes, text_3d, rgb, text_width_in, glass, badge)
+from kit import (C, E, FONT, NUNITO, DISPLAY, HAND, ASSETS, IMG, text, shape_text, shadow, bevel, transparent_fill,
+                 set_name, set_descr, link_slide, link_url, notes, rgb, text_width_in, glass, badge, label)
 from pptx_fx import Timeline, Fx, set_transition
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "deck.pptx"
@@ -48,9 +48,9 @@ cp.title = "Опора тела и движение"
 cp.author = "Шелешко А.И."
 cp.subject = "Окружающий мир, 3 класс — интерактивный урок"
 cp.keywords = "скелет, мышцы, суставы, осанка"
-LAYOUT_TITLE_ONLY = prs.slide_layouts[5]
+LAYOUT_BLANK = prs.slide_layouts[6]
 N = 31
-S = [None] + [prs.slides.add_slide(LAYOUT_TITLE_ONLY) for _ in range(N)]
+S = [None] + [prs.slides.add_slide(LAYOUT_BLANK) for _ in range(N)]
 HOME, HUB = 5, 7
 
 
@@ -93,11 +93,7 @@ def bg(slide, name):
 
 
 def title(slide, txt, color=INK, size=28, x=0.6, y=0.72, w=10.3, h=1.0, align="l"):
-    ph = slide.shapes.title
-    ph.left, ph.top, ph.width, ph.height = E(x), E(y), E(w), E(h)
-    shape_text(ph, txt, size, color, DISPLAY, False, align, "t", margins=(0, 0), spacing=1.05, label="title " + txt[:25])
-    set_name(ph, "Title")
-    return ph
+    return text(slide, x, y, w, h, txt, size, color, DISPLAY, False, align, "t", name="Title", spacing=1.05)
 
 
 def kicker(slide, txt, color, x=0.6, y=0.4):
@@ -107,18 +103,14 @@ def kicker(slide, txt, color, x=0.6, y=0.4):
     return t
 
 
-def pill_btn(slide, label, x, y, w, h, fill, color, target=None, url=None, name=None, size=12, face=DISPLAY,
+def pill_btn(slide, caption, x, y, w, h, fill, color, target=None, url=None, name=None, size=12, face=DISPLAY,
              glass_btn=False):
     if glass_btn:
-        b = glass(slide, x, y, w, h, alpha=80, radius=h / 2, name=name or label, sh=False)
-        shadow(b, blur=0.15, dist=0.04, alpha=14, color="3B2F8F")
+        b = label(slide, x, y, w, h, caption, size, color, face, fill="FFFFFF", alpha=82, gloss=False,
+                  margins=(0.08, 0.0), name=name or caption, check=False)
     else:
-        b = shp(slide, "round", x, y, w, h, fill=fill, name=name or label)
-        bevel(b, w=0.05, h=0.02)
-        shadow(b, blur=0.15, dist=0.05, alpha=24, color="3B2F8F")
-    shape_text(b, label, size, color, face, False, margins=(0.08, 0.0), check=False)
-    for r in b._element.iter(qn("a:rPr")):
-        r.set("spc", "60")
+        b = label(slide, x, y, w, h, caption, size, color, face, fill=fill, margins=(0.08, 0.0), name=name or caption,
+                  check=False)
     if target:
         link_slide(b, S[target])
     if url:
@@ -132,9 +124,9 @@ def nav(slide, museum=False):
         pill_btn(slide, "МУЗЕЙ", 9.95, 0.36, 1.25, 0.44, None, INK, target=HUB, name="!!nav museum", size=11, glass_btn=True)
 
 
-def next_btn(slide, label, target, y=6.72):
-    w = text_width_in(label + "  »", 12, DISPLAY) + len(label) * 0.6 / 72 + 0.6
-    return pill_btn(slide, label + "  »", 12.73 - w, y, w, 0.52, C["sun"], INK, target=target, name="!!next")
+def next_btn(slide, caption, target, y=6.72):
+    w = text_width_in(caption + "  »", 12, DISPLAY) + 0.6
+    return pill_btn(slide, caption + "  »", 12.73 - w, y, w, 0.52, C["sun"], INK, target=target, name="!!next")
 
 
 def photo(slide, key_or_path, x, y, w, h, name, focus=(0.5, 0.5), radius=0.22, border="FFFFFF", border_w=0.05,
@@ -205,18 +197,9 @@ def timeline(slide):
 
 
 def big_title(slide, lines, y=1.7):
-    ttl = title(slide, "", x=0.8, y=y, w=7.8, h=2.4)
-    tf = ttl.text_frame
-    for i, (line, col) in enumerate(lines):
-        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-        p.line_spacing = 1.0
-        p.alignment = PP_ALIGN.LEFT
-        r = p.add_run()
-        r.text = line
-        kit._style_run(r, 56, col, DISPLAY, False)
-        kit.check_fit("big title", line, 56, 7.8, 1.2, DISPLAY)
-    text_3d(ttl, extrusion_color="140F3C", depth=0.06)
-    return ttl
+    return text(slide, 0.8, y, 7.8, 2.4, [[(line, {"color": col})] for line, col in lines], 56, "FFFFFF", DISPLAY,
+                name="Title", spacing=0.98, extrude={"depth": 0.05, "color": "140F3C"},
+                glow_shadow={"dy": 0.08, "blur": 0.08, "alpha": 120, "color": "0B0826"})
 
 
 SKEL = img("skeleton")
@@ -257,10 +240,7 @@ cd = glass(s, 0.6, 1.85, 7.9, 4.95, name="riddle card")
 qm = text(s, 0.85, 1.55, 1.5, 1.2, "«", 88, C["lilac"], DISPLAY, name="quote mark", check=False)
 rid = text(s, 1.3, 2.85, 6.9, 2.6, "Он внутри у нас таится,\nПомогает не свалиться,\nДержит тело, как каркас.\nЧто же это есть у нас?",
            38, INK, HAND, spacing=0.95, name="riddle")
-ans = shp(s, "round", 1.25, 5.6, 3.3, 0.85, fill=C["sun"], name="answer")
-shape_text(ans, "СКЕЛЕТ", 26, INK, DISPLAY, margins=(0.1, 0.02))
-bevel(ans)
-shadow(ans, alpha=25)
+ans = label(s, 1.25, 5.6, 3.3, 0.85, "СКЕЛЕТ", 26, INK, DISPLAY, fill=C["sun"], name="answer")
 ab = badge(s, SKEL, 4.85, 5.25, 1.45, center=(0.5, 0.33), side=0.62, name="answer photo", descr="Скелет человека")
 m2 = mascot(s, "mascot_think", 10.75, 7.25, 5.7, name="!!mascot")
 tl = timeline(s)
@@ -352,14 +332,14 @@ STATION_COLS = [C["coral"], C["sky"], MINT, C["violet"], C["orange"], "E39B00", 
 pos = [(0.6 + i * 3.09, 1.95) for i in range(4)] + [(0.6 + i * 3.09, 4.55) for i in range(3)]
 tl = timeline(s)
 step = []
-for i, (src, focus, label, target) in enumerate(STATIONS):
+for i, (src, focus, cap, target) in enumerate(STATIONS):
     x, y = pos[i]
     card = glass(s, x, y, TW, TH, name="station card %d" % (i + 1))
     ph_ = photo(s, src, x + 0.1, y + 0.1, TW - 0.2, PH_, "station photo %d" % (i + 1), focus=focus, radius=0.18,
                 border=None, sh=False)
     nn = num(s, "0%d" % (i + 1), x + 0.2, y + 0.1 + PH_, 0.65, TH - PH_ - 0.1, STATION_COLS[i], 16, anchor="m",
              name="station num %d" % (i + 1))
-    lb = text(s, x + 0.82, y + 0.1 + PH_, TW - 0.95, TH - PH_ - 0.1, label, 14, INK, FONT, True, anchor="m",
+    lb = text(s, x + 0.82, y + 0.1 + PH_, TW - 0.95, TH - PH_ - 0.1, cap, 14, INK, FONT, True, anchor="m",
               name="station label %d" % (i + 1), spacing=0.95)
     hit(s, x, y, TW, TH, "station link %d" % (i + 1), target=target)
     d = i * 170
@@ -383,10 +363,7 @@ kicker(s, "ВИДЕОЭКСКУРСИЯ", C["sun"])
 title(s, "Смотрим и запоминаем!", color="FFFFFF")
 nav(s)
 cin = photo(s, "cinema", 0.6, 1.85, 7.6, 4.3, "cinema", focus=(0.5, 0.45), descr="Уютный кинозал с большим экраном")
-play = shp(s, "round", 2.55, 3.05, 3.7, 0.8, fill=C["coral"], name="play button")
-shape_text(play, "СМОТРЕТЬ ВИДЕО  »", 15, "FFFFFF", DISPLAY, margins=(0.1, 0))
-bevel(play)
-shadow(play, blur=0.3, dist=0.08, alpha=40, color="000000")
+play = label(s, 2.55, 3.05, 3.7, 0.8, "СМОТРЕТЬ ВИДЕО  »", 15, "FFFFFF", DISPLAY, fill=C["coral"], name="play button")
 hit(s, 0.6, 1.85, 7.6, 4.3, "video link", url=VIDEO_URL)
 qc = glass(s, 8.55, 1.85, 4.18, 3.1, alpha=94, name="questions card")
 qh = text(s, 8.85, 2.05, 3.7, 0.5, "Найди в фильме ответы:", 15, INK, DISPLAY, name="questions head")
@@ -520,12 +497,9 @@ for side, row, key, lab, col, info in PARTS:
     y = 2.2 + row * 1.42
     x = 0.6 if side == "l" else 9.03
     w = 3.7
-    lw = text_width_in(lab, 15, FONT, True) + 0.55
+    lw = text_width_in(lab, 15, NUNITO, True) + 0.55
     lx = x + w - lw if side == "l" else x
-    pill = shp(s, "round", lx, y, lw, 0.46, fill=col, name="part " + key)
-    shape_text(pill, lab, 15, "FFFFFF", FONT, True, margins=(0.1, 0.0))
-    bevel(pill, w=0.05, h=0.02)
-    shadow(pill, blur=0.12, dist=0.04, alpha=25)
+    pill = label(s, lx, y, lw, 0.46, lab, 15, "FFFFFF", NUNITO, True, fill=col, margins=(0.1, 0.0), name="part " + key)
     bub = glass(s, x, y + 0.55, w, 0.8, alpha=94, name="info " + key)
     shape_text(bub, info, 14, INK, FONT, True, margins=(0.14, 0.05), label="info " + key)
     px, py = PTS[key]
@@ -586,12 +560,10 @@ notes(s, "Зал 3. Посмотрите на деревянную куклу: �
 s = S[11]
 hall_frame(s, 4, "Мышцы — двигатели тела", "bg2_peach.jpg")
 ar = photo(s, "arm", 0.6, 1.85, 5.6, 4.2, "!!hall4", descr="Рука: мышцы сгибают и разгибают её в локте")
-bl = shp(s, "round", 0.6 + 0.47 * 5.6 - 0.7, 1.85 + 0.25 * 4.2 - 0.2, 1.4, 0.42, fill=C["coral"], name="biceps label")
-shape_text(bl, "сгибает", 14, "FFFFFF", FONT, True, margins=(0.05, 0))
-shadow(bl, blur=0.1, dist=0.04, alpha=30)
-tlb = shp(s, "round", 0.6 + 0.3 * 5.6 - 0.8, 1.85 + 0.78 * 4.2 - 0.2, 1.6, 0.42, fill=C["sky"], name="triceps label")
-shape_text(tlb, "разгибает", 14, "FFFFFF", FONT, True, margins=(0.05, 0))
-shadow(tlb, blur=0.1, dist=0.04, alpha=30)
+bl = label(s, 0.6 + 0.47 * 5.6 - 0.7, 1.85 + 0.25 * 4.2 - 0.2, 1.4, 0.42, "сгибает", 14, "FFFFFF", NUNITO, True,
+           fill=C["coral"], margins=(0.05, 0), name="biceps label")
+tlb = label(s, 0.6 + 0.3 * 5.6 - 0.8, 1.85 + 0.78 * 4.2 - 0.2, 1.6, 0.42, "разгибает", 14, "FFFFFF", NUNITO, True,
+            fill=C["sky"], margins=(0.05, 0), name="triceps label")
 FACTS = [(None, "мышц в теле человека — больше шестисот!"),
          ((ARM, (0.6, 0.73), 0.3), "Мышцы крепятся к костям сухожилиями. Сокращаясь, они тянут кость — и мы двигаемся."),
          ((ARM, (0.45, 0.5), 0.42), "Мышцы работают парами: одна сгибает руку, другая — разгибает."),
@@ -631,9 +603,8 @@ for i, key in enumerate(["posture_bad", "posture_good"]):
     x = xs2[i]
     p = photo(s, key, x, 2.3, IMW, IMW, "!!hall5" if key == "posture_good" else "posture bad", focus=(0.5, 0.55),
               descr="Мальчик сидит за партой " + ("сгорбившись" if key == "posture_bad" else "с прямой спиной"))
-    lt = shp(s, "oval", x - 0.25, 2.08, 0.66, 0.66, fill=C["violet"], name="letter %d" % (i + 1))
-    shape_text(lt, "АБ"[i], 18, "FFFFFF", DISPLAY, margins=(0, 0))
-    bevel(lt, w=0.05, h=0.02)
+    lt = label(s, x - 0.25, 2.08, 0.66, 0.66, "АБ"[i], 18, "FFFFFF", DISPLAY, fill=C["violet"], oval=True,
+               margins=(0, 0), name="letter %d" % (i + 1))
     pics[key] = (p, x, lt)
 tl = timeline(s)
 tl.begin([fx(dfn, "fade", 500), fx(pics["posture_bad"][2], "pop", 500, delay=300), fx(pics["posture_good"][2], "pop", 500, delay=450)])
@@ -644,9 +615,8 @@ for key, good in (("posture_bad", False), ("posture_good", True)):
     fr = shp(s, "round", x - 0.07, 2.23, IMW + 0.14, IMW + 0.14, radius=0.28, name="frame " + key, line=col, line_w=0.1)
     badge_t = "Правильно! Спина прямая" if good else "Неправильно! Спина согнута"
     bw = text_width_in(badge_t, 13, DISPLAY) + 0.5
-    bdg = shp(s, "round", x + (IMW - bw) / 2, 2.3 + IMW - 0.38, bw, 0.6, fill=col, name="badge " + key)
-    shape_text(bdg, badge_t, 13, "FFFFFF", DISPLAY, margins=(0.08, 0.0), label="posture badge")
-    bevel(bdg, w=0.05, h=0.02)
+    bdg = label(s, x + (IMW - bw) / 2, 2.3 + IMW - 0.38, bw, 0.6, badge_t, 13, "FFFFFF", DISPLAY, fill=col,
+                margins=(0.08, 0.0), name="badge " + key)
     h = hit(s, x, 2.3, IMW, IMW, "click " + key)
     if good:
         tl.trigger(h, [fx(fr, "zoom", 400, sound="correct"), fx(bdg, "pop", 600, delay=100)]).then([fx(p, "pulse", 300, scale=105000)])
@@ -762,9 +732,8 @@ for i, ((path, center, side), nm, sub, target, col) in enumerate(GAMES):
     bd = badge(s, path, 4.58, y + 0.16, 1.1, center=center, side=side, name="game photo %d" % (i + 1))
     t1 = text(s, 5.9, y + 0.2, 5.0, 0.55, nm, 17, INK, DISPLAY, name="game title %d" % (i + 1))
     t2 = text(s, 5.9, y + 0.8, 5.0, 0.45, sub, 15, C["muted"], FONT, True, name="game sub %d" % (i + 1))
-    pb = shp(s, "round", 11.1, y + 0.43, 1.4, 0.56, fill=col, name="game go %d" % (i + 1))
-    shape_text(pb, "ИГРАТЬ", 11, "FFFFFF", DISPLAY, margins=(0.05, 0))
-    bevel(pb, w=0.05, h=0.02)
+    pb = label(s, 11.1, y + 0.43, 1.4, 0.56, "ИГРАТЬ", 11, "FFFFFF", DISPLAY, fill=col, margins=(0.05, 0),
+               name="game go %d" % (i + 1))
     hit(s, 4.4, y, 8.33, 1.42, "game link %d" % (i + 1), target=target)
     d = 250 * i
     step += [fx(c, "fly_right", 600, delay=d), fx(bd, "fly_right", 600, delay=d), fx(t1, "fly_right", 600, delay=d),
@@ -793,12 +762,12 @@ for qi, (question, answers, right) in enumerate(QUIZ):
     tl = timeline(s)
     m_think = mascot(s, "mascot_think", 1.5, 7.35, 2.45, name="mascot think")
     m_joy = mascot(s, "mascot_joy", 1.5, 7.35, 2.55, name="mascot joy")
-    b0 = glass(s, 2.85, 5.55, 4.6, 0.95, alpha=94, radius=0.3, name="bubble ask")
-    shape_text(b0, "Выбери правильный ответ!", 26, INK, HAND)
-    b_bad = shp(s, "round", 2.85, 5.55, 4.6, 0.95, fill=C["coral_soft"], name="bubble wrong", radius=0.3)
-    shape_text(b_bad, "Ой! Подумай ещё раз", 28, C["red"], HAND)
-    b_ok = shp(s, "round", 2.85, 5.55, 4.6, 0.95, fill="E3F8EC", name="bubble right", radius=0.3)
-    shape_text(b_ok, "Верно! Молодец!", 30, "138A55", HAND)
+    b0 = label(s, 2.85, 5.55, 4.6, 0.95, "Выбери правильный ответ!", 26, INK, HAND, fill="FFFFFF", alpha=94, radius=0.3,
+               gloss=False, name="bubble ask")
+    b_bad = label(s, 2.85, 5.55, 4.6, 0.95, "Ой! Подумай ещё раз", 28, C["red"], HAND, fill=C["coral_soft"], radius=0.3,
+                  gloss=False, name="bubble wrong")
+    b_ok = label(s, 2.85, 5.55, 4.6, 0.95, "Верно! Молодец!", 30, "138A55", HAND, fill="E3F8EC", radius=0.3, gloss=False,
+                 name="bubble right")
     hits = []
     for ai, a in enumerate(answers):
         x = 0.6 + ai * 4.19
@@ -808,10 +777,9 @@ for qi, (question, answers, right) in enumerate(QUIZ):
         at = text(s, x + 0.25, y + 0.95, 3.25, 1.35, a, 19, INK, DISPLAY, align="c", anchor="m",
                   name="answer text %s" % LETTERS[ai])
         good = ai == right
-        ov = shp(s, "round", x, y, 3.75, 2.55, fill=C["green"] if good else C["red"], radius=0.25, name="result %s" % LETTERS[ai])
-        shape_text(ov, [[("Верно!" if good else "Не то!", {"size": 26, "face": DISPLAY})], [(a, {"size": 18, "bold": True})]],
-                   26, "FFFFFF", FONT, check=False)
-        bevel(ov, w=0.06, h=0.025)
+        ov = label(s, x, y, 3.75, 2.55, [[("Верно!" if good else "Не то!", {"size": 26, "face": DISPLAY})],
+                                         [(a, {"size": 18, "bold": True})]], 26, "FFFFFF", NUNITO,
+                   fill=C["green"] if good else C["red"], radius=0.25, name="result %s" % LETTERS[ai], check=False)
         hits.append((x, y, good, ov))
     nxt_target = 18 + qi if qi < 4 else 22
     nb = next_btn(s, "Следующий вопрос" if qi < 4 else "Следующая игра", nxt_target, y=6.62)
@@ -891,17 +859,13 @@ tl = timeline(s)
 for i, (stmt, truth, why) in enumerate(TF):
     x = 0.6 + i * 3.09
     y, w, h = 2.3, 2.85, 4.0
-    back = shp(s, "round", x, y, w, h, fill=C["green"] if truth else C["coral"], radius=0.28, name="tf back %d" % (i + 1))
-    shadow(back, alpha=22)
-    bevel(back, w=0.07, h=0.03)
-    shape_text(back, [[("ВЕРЮ!" if truth else "НЕ ВЕРЮ!", {"size": 20, "face": DISPLAY})], [("", {"size": 8})],
-                      [(why, {"size": 16, "bold": True})]], 16, "FFFFFF", FONT, margins=(0.22, 0.2), check=False)
-    kit.check_fit("tf why", why, 16, w - 0.44, 2.6, FONT, True)
-    front = glass(s, x, y, w, h, alpha=100, radius=0.28, name="tf front %d" % (i + 1))
-    shape_text(front, [[("?", {"size": 54, "face": DISPLAY, "color": C["lilac"]})], [(stmt, {"size": 18, "bold": True})],
-                       [("", {"size": 8})], [("верю или не верю?", {"size": 22, "face": HAND, "color": C["violet"]})]],
-               18, INK, FONT, margins=(0.2, 0.2), check=False)
-    kit.check_fit("tf stmt", stmt, 18, w - 0.4, 1.9, FONT, True)
+    back = label(s, x, y, w, h, [[("ВЕРЮ!" if truth else "НЕ ВЕРЮ!", {"size": 20, "face": DISPLAY})], [("", {"size": 8})],
+                                 [(why, {"size": 16, "bold": True})]], 16, "FFFFFF", NUNITO,
+                 fill=C["green"] if truth else C["coral"], radius=0.28, margins=(0.22, 0.2), name="tf back %d" % (i + 1))
+    front = label(s, x, y, w, h, [[("?", {"size": 54, "face": DISPLAY, "color": C["lilac"]})], [(stmt, {"size": 18, "bold": True})],
+                                  [("", {"size": 8})], [("верю или не верю?", {"size": 22, "face": HAND, "color": C["violet"]})]],
+                  18, INK, NUNITO, fill="FFFFFF", radius=0.28, line=C["lilac"], line_w=0.03, gloss=False, margins=(0.2, 0.2),
+                  name="tf front %d" % (i + 1))
     tl.trigger(front, [fx(front, "collapse_h", 260, sound="flip")]).then([fx(back, "stretch_h", 300)])
 next_btn(s, "Онлайн-задание", 24)
 tl.apply()
@@ -931,10 +895,7 @@ for i, t in enumerate(LV):
     tt = text(s, 5.8, y, 6.7, 0.6, t, 17, INK, FONT, True, anchor="m", name="level text %d" % (i + 1))
     step += [fx(nn, "fade", 400, delay=150 * i), fx(tt, "fade", 400, delay=150 * i)]
 tl.then(step)
-pb = shp(s, "round", 4.95, 5.05, 4.6, 0.95, fill=C["coral"], name="play online")
-bevel(pb)
-shadow(pb, alpha=30)
-shape_text(pb, "ИГРАТЬ ОНЛАЙН  »", 17, "FFFFFF", DISPLAY, margins=(0.1, 0.02))
+pb = label(s, 4.95, 5.05, 4.6, 0.95, "ИГРАТЬ ОНЛАЙН  »", 17, "FFFFFF", DISPLAY, fill=C["coral"], name="play online")
 link_url(pb, GAME_URL)
 ut = text(s, 4.95, 6.1, 5.6, 0.45, GAME_URL.replace("https://", ""), 14, C["muted"], FONT, True, name="online url")
 link_url(ut, GAME_URL)
@@ -969,9 +930,8 @@ for i, (q, a, col) in enumerate(FIN):
     nn = num(s, "0%d" % (i + 1), 0.85, y, 0.8, 0.82, col, 17, anchor="m", name="sentence num %d" % (i + 1))
     qt = text(s, 1.7, y, 7.4, 0.82, q, 19, INK, FONT, True, anchor="m", name="sentence text %d" % (i + 1))
     slot = glass(s, 9.45, y + 0.07, 3.28, 0.68, alpha=55, radius=0.34, name="slot %d" % (i + 1), sh=False)
-    an = shp(s, "round", 9.45, y + 0.07, 3.28, 0.68, fill=col, name="answer word %d" % (i + 1))
-    shape_text(an, a.upper(), 17, "FFFFFF", DISPLAY, margins=(0.1, 0))
-    bevel(an, w=0.05, h=0.02)
+    an = label(s, 9.45, y + 0.07, 3.28, 0.68, a.upper(), 17, "FFFFFF", DISPLAY, fill=col, margins=(0.1, 0),
+               name="answer word %d" % (i + 1))
     d = 120 * i
     step += [fx(c, "fly_left", 500, delay=d), fx(nn, "fly_left", 500, delay=d), fx(qt, "fly_left", 500, delay=d),
              fx(slot, "fade", 400, delay=d + 200)]
@@ -992,9 +952,8 @@ title(s, "Что мы узнали")
 nav(s)
 cc = glass(s, 4.87, 2.0, 3.6, 3.6, alpha=70, radius=1.8, name="center circle")
 mj = mascot(s, "mascot_joy", 6.67, 5.55, 3.3, name="!!mascot")
-fp = shp(s, "round", 4.37, 5.85, 4.6, 0.75, fill=C["indigo"], name="formula")
-shape_text(fp, "Скелет + мышцы = движение!", 14, "FFFFFF", DISPLAY, margins=(0.1, 0))
-bevel(fp, w=0.05, h=0.02)
+fp = label(s, 4.37, 5.85, 4.6, 0.75, "Скелет + мышцы = движение!", 14, "FFFFFF", DISPLAY, fill=C["indigo"],
+           margins=(0.1, 0), name="formula")
 INFO = [(0.6, 1.95, (SKEL, (0.5, 0.3), 0.6), "Скелет", "206 костей. Опора и защита тела", C["violet"]),
         (8.83, 1.95, (MANN, (0.665, 0.39), 0.25), "Суставы", "Подвижные соединения: сгибаемся и поворачиваемся", MINT),
         (0.6, 4.3, (ARM, (0.47, 0.45), 0.5), "Мышцы", "Больше 600. Приводят кости в движение", C["coral"]),
@@ -1053,12 +1012,9 @@ STEPS = [(1.0, 4.6, 2.45, C["coral"], "Мне было трудно", "Не ст
 tl = timeline(s)
 for i, (x, y, h, col, lab, msg, mkey, snd) in enumerate(STEPS):
     w = 3.6
-    st_ = shp(s, "round", x, y, w, h, fill=col, name="step %d" % (i + 1), radius=0.22)
-    bevel(st_, w=0.1, h=0.04)
-    shadow(st_, alpha=40, color="000000")
     tc = INK if col == C["sun"] else "FFFFFF"
-    shape_text(st_, [[(lab, {"face": DISPLAY, "size": 15})]], 15, tc, DISPLAY, anchor="t", margins=(0.2, 0.2), check=False)
-    kit.check_fit("step label", lab, 15, w - 0.4, 0.8, DISPLAY)
+    st_ = label(s, x, y, w, h, lab, 15, tc, DISPLAY, fill=col, radius=0.22, anchor="t", margins=(0.2, 0.2),
+                name="step %d" % (i + 1))
     ms = text(s, x + 0.2, y + 1.0, w - 0.4, 1.0, msg, 24, tc, HAND, name="step msg %d" % (i + 1), spacing=0.9)
     mm = mascot(s, mkey, x + w / 2, y + 0.05, 2.05, name="step mascot %d" % (i + 1))
     tl.trigger(st_, [fx(mm, "bounce", 900, sound=snd), fx(ms, "fade", 500, delay=300)])

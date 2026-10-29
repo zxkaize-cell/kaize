@@ -14,13 +14,17 @@ ASSETS = os.path.join(HERE, "assets")
 EMOJI = os.path.join(ASSETS, "emoji")
 IMG = os.path.join(HERE, "img")
 
-FONT = "Nunito"          # body text
-DISPLAY = "Unbounded"    # titles and big numbers
-HAND = "Caveat"          # handwritten accents
+FONT = "Arial"           # live body text: present on every device
+NUNITO = "Nunito"        # rounded body face, used only inside rendered pictures
+DISPLAY = "Unbounded"    # titles and big numbers (rendered as pictures)
+HAND = "Caveat"          # handwritten accents (rendered as pictures)
 FONT_BLACK = DISPLAY
+RASTER_FACES = (NUNITO, DISPLAY, HAND)
 FONT_FILES = {
-    (FONT, False): os.path.expanduser("~/.fonts/Nunito-Regular.ttf"),
-    (FONT, True): os.path.expanduser("~/.fonts/Nunito-Bold.ttf"),
+    (FONT, False): "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+    (FONT, True): "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+    (NUNITO, False): os.path.expanduser("~/.fonts/Nunito-Regular.ttf"),
+    (NUNITO, True): os.path.expanduser("~/.fonts/Nunito-Bold.ttf"),
     (DISPLAY, False): os.path.expanduser("~/.fonts/Unbounded-Regular.ttf"),
     (DISPLAY, True): os.path.expanduser("~/.fonts/Unbounded-Regular.ttf"),
     (HAND, False): os.path.expanduser("~/.fonts/Caveat-Regular.ttf"),
@@ -212,9 +216,13 @@ def _style_run(run, size, color, face, bold, italic=False):
 
 
 def text(slide, x, y, w, h, content, size=18, color=None, face=FONT, bold=False, align="l", anchor="t",
-         name=None, spacing=None, italic=False, para_space=0, check=True):
-    """content: str (\\n = new paragraph) or list of paragraphs, each a list of (text, opts) runs."""
+         name=None, spacing=None, italic=False, para_space=0, check=True, extrude=None, glow_shadow=None):
+    """content: str (\\n = new paragraph) or list of paragraphs, each a list of (text, opts) runs.
+    Display and handwritten faces come out as pictures so no font has to travel with the file."""
     color = color or C["ink"]
+    if face in RASTER_FACES or extrude:
+        return text_img(slide, x, y, w, h, content, size, color, face, bold, align, anchor, name, spacing,
+                        extrude=extrude, shadow=glow_shadow, check=check)
     tb = slide.shapes.add_textbox(E(x), E(y), E(w), E(h))
     tf = tb.text_frame
     tf.word_wrap = True
@@ -423,3 +431,58 @@ def glass(slide, x, y, w, h, alpha=88, radius=0.25, name="card", tint="FFFFFF", 
         shadow(b, blur=0.35, dist=0.08, alpha=13, color="3B2F8F")
     set_name(b, name)
     return b
+
+
+# ------------------------------------------------------------ rendered text
+import raster
+
+
+def _paras(content, size, color, face, bold, spacing):
+    default = {"face": face, "size": size, "color": color, "bold": bold, "spacing": spacing or 1.0}
+    if isinstance(content, str):
+        paras = [[(p, {})] for p in content.split("\n")]
+    else:
+        paras = content
+    plain = "\n".join("".join(t for t, o in runs) for runs in paras)
+    return paras, default, plain
+
+
+def text_img(slide, x, y, w, h, content, size=18, color=None, face=DISPLAY, bold=False, align="l", anchor="t",
+             name=None, spacing=None, extrude=None, shadow=None, check=True):
+    color = color or C["ink"]
+    paras, default, plain = _paras(content, size, color, face, bold, spacing)
+    pad = 0.15 if (extrude or shadow) else 0.02
+    img = raster.render(paras, w, h, default, align, anchor, pad_in=pad, extrude=extrude, shadow=shadow)
+    if check:
+        lines = raster._layout(paras, int(w * raster.DPI), default, raster.DPI)
+        tot = sum(l[4] for l in lines) / raster.DPI
+        widest = max((l[1] for l in lines), default=0) / raster.DPI
+        if tot > h + 0.02 or widest > w + 0.02:
+            WARNINGS.append("%s: '%s' (%spt) needs %.2fx%.2f in %.2fx%.2f" % (name or plain[:20], plain[:40], size, widest, tot, w, h))
+    path = raster.save(img, ("t", paras, default, w, h, align, anchor, pad, extrude, shadow))
+    pic = slide.shapes.add_picture(path, E(x - pad), E(y - pad), E(w + 2 * pad), E(h + 2 * pad))
+    set_name(pic, name or ("text " + plain[:30]))
+    set_descr(pic, plain)
+    return pic
+
+
+def label(slide, x, y, w, h, content, size=16, color="FFFFFF", face=DISPLAY, bold=False, fill="6C5CE7", radius=None,
+          align="c", anchor="m", margins=(0.12, 0.05), alpha=100, line=None, line_w=0.0, shadow_on=True, gloss=True,
+          oval=False, name=None, spacing=None, check=True):
+    """A filled shape with its caption, rendered as one picture (animates and links as a unit)."""
+    paras, default, plain = _paras(content, size, color, face, bold, spacing) if content else (None, None, "")
+    r = (min(w, h) / 2) if radius is None else radius
+    img, pad = raster.box_image(w, h, fill, r, paras, default, align, anchor, margins, int(alpha * 2.55), line, line_w,
+                                shadow_on, gloss, oval)
+    if check and paras:
+        lines = raster._layout(paras, int((w - 2 * margins[0]) * raster.DPI), default, raster.DPI)
+        tot = sum(l[4] for l in lines) / raster.DPI
+        widest = max((l[1] for l in lines), default=0) / raster.DPI
+        if tot > h - 2 * margins[1] + 0.02 or widest > w - 2 * margins[0] + 0.02:
+            WARNINGS.append("label %s: '%s' (%spt) needs %.2fx%.2f" % (name or plain[:20], plain[:40], size, widest, tot))
+    path = raster.save(img, ("b", paras, default, w, h, fill, r, align, anchor, margins, alpha, line, line_w, shadow_on,
+                             gloss, oval))
+    pic = slide.shapes.add_picture(path, E(x - pad), E(y - pad), E(w + 2 * pad), E(h + 2 * pad))
+    set_name(pic, name or ("label " + plain[:30]))
+    set_descr(pic, plain)
+    return pic
