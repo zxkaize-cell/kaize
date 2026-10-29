@@ -15,7 +15,9 @@
 4. QR-коды: `python3 make_qr.py https://kostik-skeleton.lovable.app img/qr_game.png` и
    `python3 make_qr.py https://youtu.be/6C_RWeZtCNg assets/qr_video.png`.
 5. `python3 build_deck.py out/deck.pptx && python3 postprocess.py out/deck.pptx out/thumbnail.jpeg` собирает презентацию,
-   ставит Arial шрифтом темы и картинку-превью (`thumbnail.jpeg` — первый слайд, уменьшенный до 256 px).
+   ставит Arial шрифтом темы и картинку-превью (`thumbnail.jpeg` — первый слайд, уменьшенный до 256 px),
+   уменьшает картинки до размера, в котором они показаны на слайде (~170 dpi), и пережимает видео в 720p,
+   чтобы файл весил около 11 МБ и легко открывался на телефоне.
    Картинки текста кэшируются в `img/text/`.
 
 `pptx_fx.py` пишет анимации, триггеры, звуки, видео и 3D-переходы (морф, куб, вихрь и др.) прямо в XML слайдов.
