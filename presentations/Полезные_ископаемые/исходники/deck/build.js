@@ -45,10 +45,14 @@ function txt(s, name, text, o) {
 }
 function box(s, name, o) {
   const { text = '', ...rest } = o;
-  s.addText(text, Object.assign({
+  const opts = Object.assign({
     shape: P.ShapeType.roundRect, fontFace: F, objectName: name, rectRadius: 0.16, fill: { color: WHITE }, line: { type: 'none' },
-    shadow: sh(), margin: mg(14, 8, 14, 8), valign: 'middle', color: INK, fontSize: 18,
-  }, rest));
+    margin: mg(14, 8, 14, 8), valign: 'middle', color: INK, fontSize: 18,
+  }, rest);
+  // no native shape shadows: phone and web viewers draw them wrongly; white cards get a hairline border instead
+  delete opts.shadow;
+  if (!rest.line && opts.fill && opts.fill.color === WHITE && (opts.fill.transparency || 0) < 50) opts.line = { color: 'D3DDEB', width: 1 };
+  s.addText(text, opts);
   return name;
 }
 function hit(s, name, x, y, w, h) { // invisible click area for triggers
