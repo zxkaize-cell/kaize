@@ -195,7 +195,7 @@ let fizRaf = 0, lastPose = '', lastLine = -2;
 function setPose(code) {
   if (code === lastPose) return; lastPose = code;
   const img = $('#pose'); const flip = code === 'P3m';
-  img.src = IMG[flip ? 'P3' : code] || IMG.C1; img.classList.toggle('flip', flip);
+  img.src = POSE[flip ? 'P3' : code] || POSE.C1; img.classList.toggle('flip', flip);
 }
 function setLine(i) {
   if (i === lastLine) return; lastLine = i;

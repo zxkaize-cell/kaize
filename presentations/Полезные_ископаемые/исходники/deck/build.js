@@ -119,6 +119,7 @@ async function build() {
 
   BG = await AS.backgrounds();
   BG.title = rawPath('TITLE');
+  if (BG.title) { const tj = path.join(AS.OUT, 'title_bg.jpg'); await sharp(BG.title).flatten({ background: '#ffffff' }).jpeg({ quality: 90 }).toFile(tj); BG.title = tj; }
   BG.hub = BG.dark;
   if (rawPath('B1')) {
     const out = path.join(AS.OUT, 'bg_hub.jpg');
@@ -192,7 +193,7 @@ async function slideOrg() {
     pic(s, `ri${i}`, await AS.badge(items[i][0], '#F5A524'), 4.15, y, 0.62, 0.62);
     txt(s, `rt${i}`, items[i][1], { x: 4.9, y: y, w: 2.0, h: 0.62, fontSize: 17, bold: true, color: WHITE, valign: 'middle' });
   }
-  pic(s, 'b1', await scene('B1', 169), 7.05, 3.25, 5.75, 5.75 * SC(169), 'Разрез Земли с полезными ископаемыми');
+  pic(s, 'b1', await scene('B1'), 7.85, 3.15, 4.95, 4.95 * 0.75, 'Разрез Земли с полезными ископаемыми');
   a.auto('girl', 'zoom', 0, 700); a.auto('girl', 'pulse', 3200, 700);
   a.auto('bubble', 'pop', 300, 600, { sound: 'pop' }); a.auto('tail', 'fade', 600, 300);
   a.auto('b1', 'zoom', 700, 800);
@@ -207,13 +208,13 @@ async function slideAkt() {
   const [s, a] = newSlide(S.AKT);
   setBg(s, a, 'light');
   header(s, a, 'РАЗМИНКА ДЛЯ УМА', 'Из чего сделаны эти предметы?');
-  const items = [['O1', 'Дом', 'кирпич, бетон, стекло'], ['O2', 'Дорога', 'песок, щебень, асфальт'], ['O3', 'Бутылка', 'стекло — из песка'],
-    ['O4', 'Деталь', 'металл — из руды'], ['O5', 'Машина', 'металл, стекло, бензин'], ['O6', 'Кирпич', 'глина']];
+  const items = [['FaHouseChimney', 'Дом', 'кирпич, бетон, стекло', '#F2643D'], ['FaRoad', 'Дорога', 'песок, щебень, асфальт', '#5B6B8C'], ['FaWineBottle', 'Бутылка', 'стекло — из песка', '#1FA463'],
+    ['FaGears', 'Деталь', 'металл — из руды', '#4A7BD0'], ['FaCar', 'Машина', 'металл, стекло, бензин', '#EF5B5B'], ['GiBrickWall', 'Кирпич', 'глина', '#D9971A']];
   const cw = 2.85, chh = 2.55, gx = 0.22, gy = 0.22, x0 = 0.6, y0 = 1.62;
   for (let i = 0; i < 6; i++) {
     const x = x0 + (i % 3) * (cw + gx), y = y0 + Math.floor(i / 3) * (chh + gy);
     box(s, `c${i}`, { x, y, w: cw, h: chh, rectRadius: 0.2 });
-    pic(s, `im${i}`, await sq(items[i][0]), x + (cw - 1.5) / 2, y + 0.12, 1.5, 1.5, items[i][1]);
+    pic(s, `im${i}`, await AS.badge(items[i][0], items[i][3], '#FFFFFF', { pad: 0.22 }), x + (cw - 1.35) / 2, y + 0.2, 1.35, 1.35, items[i][1]);
     txt(s, `nm${i}`, items[i][1], { x, y: y + 1.64, w: cw, h: 0.36, fontSize: 19, bold: true, align: 'center', color: NAVY });
     box(s, `an${i}`, { x: x + 0.14, y: y + 2.04, w: cw - 0.28, h: 0.4, rectRadius: 0.2, fill: { color: GREEN }, shadow: undefined, text: items[i][2], color: WHITE, bold: true, fontSize: 14, align: 'center', margin: mg(4, 0, 4, 0) });
     hit(s, `h${i}`, x, y, cw, chh);
@@ -297,7 +298,7 @@ async function slideGoals() {
     pic(s, `i${i}`, await AS.badge(icons[i], '#E3F6EA', '#17834F'), x + 0.36, y + chh / 2 + 0.12, 0.38, 0.38);
     a.auto(`t${i}`, 'float', 650 + i * 140, 500); a.auto(`n${i}`, 'pop', 750 + i * 140, 400); a.auto(`i${i}`, 'fade', 800 + i * 140, 400);
   }
-  pic(s, 'girl', await ch('C2'), 9.95, 2.0, 3.25, 4.88, 'Мира показывает маршрут');
+  pic(s, 'girl', await ch('C4'), 9.95, 2.0, 3.25, 4.88, 'Мира готова к путешествию');
   a.auto('goal', 'float', 250, 600); a.auto('goalic', 'pop', 450, 450, { sound: 'pop' });
   a.auto('girl', 'zoom', 500, 700);
   homeBtn(s, a);
@@ -335,7 +336,7 @@ async function slideHub() {
     a.link(`ch${i}`, sl); a.link(`ic${i}`, sl);
     a.auto(`ch${i}`, 'pop', 450 + i * 150, 450, i === 0 ? { sound: 'sparkle' } : {}); a.auto(`ic${i}`, 'zoom', 520 + i * 150, 400);
   }
-  pic(s, 'girl', await ch('C5'), 10.35, 1.6, 2.65, 3.98, 'Мира с лупой');
+  pic(s, 'girl', await ch('C1'), 10.35, 1.6, 2.65, 3.98, 'Мира приглашает на экскурсию');
   a.auto('girl', 'zoom', 900, 700);
   txt(s, 'secT', 'РАЗДЕЛЫ УРОКА', { x: 0.6, y: 5.82, w: 4, h: 0.3, fontSize: 13, bold: true, charSpacing: 2, color: 'FFD27A' });
   const secs = [['Видеоэкскурсия', 'FaCirclePlay', S.VIDEO, 2.62], ['Физкультминутка', 'FaPersonRunning', S.FIZ, 2.74], ['Задания', 'FaPuzzlePiece', S.T1, 1.78],
@@ -379,7 +380,7 @@ async function slideSt1() {
     pic(s, `ci${i}`, await AS.badge(cards[i][0], cards[i][1]), x + 0.28, 4.12, 0.72, 0.72);
     a.auto(`c${i}`, 'float', 900 + i * 180, 550); a.auto(`ci${i}`, 'pop', 1000 + i * 180, 400);
   }
-  pic(s, 'girl', await ch('C2'), 9.3, 1.95, 3.35, 5.03, 'Мира объясняет');
+  pic(s, 'girl', await ch('C1'), 9.3, 1.95, 3.35, 5.03, 'Мира объясняет');
   a.auto('def', 'float', 300, 650); a.auto('defic', 'pop', 500, 450, { sound: 'pop' });
   a.auto('girl', 'zoom', 600, 700);
   notes(s, 'Изучение нового материала.\n— Полезные ископаемые — это природные вещества, которые находятся в земной коре и используются человеком. Они могут находиться близко к поверхности Земли или глубоко под землёй.\n— Некоторые полезные ископаемые человек использует почти без изменения. Например, песок и глину. Другие перерабатывают, чтобы получить необходимые материалы и вещества.');
@@ -486,7 +487,7 @@ async function slideSt4() {
     box(s, `p${i}`, { x, y: 5.45, w: pw, h: 1.48, rectRadius: 0.18, text: prod[i][1], fontSize: 14, bold: true, color: NAVY, align: 'center', valign: 'bottom', margin: mg(1, 2, 1, 8) });
     pic(s, `pi${i}`, await AS.badge(prod[i][0], '#E2EBFA', '#4A7BD0'), x + (pw - 0.72) / 2, 5.58, 0.72, 0.72, prod[i][1]);
   }
-  await sceneFact(s, a, 'B5', 'Из руд цветных металлов получают медь и алюминий.', 'C2');
+  await sceneFact(s, a, 'B5', 'Из руд цветных металлов получают медь и алюминий.', 'C4');
   const order = ['f0', 'f0i', 'f0t', 'ar0', 'f1', 'f1i', 'ar1', 'f2', 'f2i'];
   order.forEach((o, i) => a.auto(o, o.startsWith('ar') ? 'wipeL' : (o.endsWith('i') ? 'zoom' : 'float'), 300 + i * 110, 450));
   a.auto('q', 'float', 1300, 500); a.auto('qi', 'pop', 1400, 400);
@@ -525,14 +526,14 @@ async function slideSt6() {
   const [s, a] = newSlide(S.ST6);
   setBg(s, a, 'light');
   stationHead(s, a, 6, 'Как добывают полезные ископаемые?');
-  pic(s, 'img', await scene('B7', 169), 0.45, 1.5, 8.2, 8.2 * 9 / 16, 'Карьер, шахта и нефтяная вышка');
+  pic(s, 'img', await scene('B1'), 0.45, 1.5, 6.4, 4.8, 'Карьер, шахта и нефтяная вышка на разрезе Земли');
   const cards = [['GiMining', '#D9971A', 'Карьер', 'если лежат близко к поверхности'], ['GiMineWagon', '#5B6B8C', 'Шахта', 'если лежат глубоко под землёй'], ['GiOilPump', '#1D2B53', 'Буровая вышка', 'чтобы добыть нефть и газ']];
   for (let i = 0; i < 3; i++) {
     const y = 1.6 + i * 1.5;
-    box(s, `c${i}`, { x: 8.9, y, w: 3.85, h: 1.34, rectRadius: 0.2, text: [
+    box(s, `c${i}`, { x: 7.15, y, w: 5.6, h: 1.34, rectRadius: 0.2, text: [
       { text: cards[i][2], options: { bold: true, fontSize: 20, color: NAVY, breakLine: true } },
       { text: cards[i][3], options: { fontSize: 16, color: INK } }], margin: mg(84, 6, 12, 6) });
-    pic(s, `ci${i}`, await AS.badge(cards[i][0], cards[i][1]), 9.08, y + 0.3, 0.74, 0.74);
+    pic(s, `ci${i}`, await AS.badge(cards[i][0], cards[i][1]), 7.33, y + 0.3, 0.74, 0.74);
   }
   box(s, 'fact', { x: 0.6, y: 6.25, w: 12.15, h: 0.7, rectRadius: 0.35, fill: { color: SKY_L }, shadow: undefined, text: [
     { text: 'Это интересно: ', options: { bold: true, color: STEEL } }, { text: 'в Беларуси калийную соль добывают в глубоких шахтах возле Солигорска.', options: { color: NAVY, bold: true } }],
@@ -549,8 +550,8 @@ async function slideSt7() {
   const [s, a] = newSlide(S.ST7);
   setBg(s, a, 'light');
   stationHead(s, a, 7, 'Почему ископаемые нужно беречь?');
-  pic(s, 'img', await scene('B8'), 0.45, 1.5, 4.7, 3.525, 'Древний лес');
-  box(s, 'cap', { x: 0.8, y: 4.3, w: 3.1, h: 0.5, rectRadius: 0.25, fill: { color: GREEN_D }, shadow: undefined, text: 'Миллионы лет назад…', color: WHITE, bold: true, fontSize: 15, align: 'center' });
+  pic(s, 'img', await scene('B2'), 0.45, 1.5, 4.7, 3.525, 'Карьер');
+  box(s, 'cap', { x: 0.8, y: 4.3, w: 3.1, h: 0.5, rectRadius: 0.25, fill: { color: GREEN_D }, shadow: undefined, text: 'Запасы не бесконечны!', color: WHITE, bold: true, fontSize: 15, align: 'center' });
   box(s, 'q', { x: 5.35, y: 1.6, w: 7.4, h: 1.3, rectRadius: 0.22, fill: { color: CORAL_L }, shadow: undefined, text: 'Что будет, если добывать полезные ископаемые и совсем не думать о будущем?', fontSize: 19, bold: true, color: NAVY, margin: mg(78, 8, 16, 8) });
   pic(s, 'qi', await AS.badge('FaQuestion', '#EF5B5B'), 5.55, 1.94, 0.62, 0.62);
   const cons = ['Запасы уменьшатся', 'Некоторые закончатся', 'Разрушится почва', 'Изменится природа', 'Появится загрязнение'];
@@ -628,8 +629,8 @@ async function slideFiz() {
   box(s, 'barbg', { x: 0.95, y: 6.72, w: 6.2, h: 0.1, rectRadius: 0.05, fill: { color: 'E1E7F2' }, shadow: undefined });
   box(s, 'bar', { x: 0.95, y: 6.72, w: 6.2, h: 0.1, rectRadius: 0.05, fill: { color: AMBER }, shadow: undefined });
   // poses stacked on the right
-  const poses = ['C1', 'P0', 'P1', 'P2', 'P3', 'P3m', 'P4', 'P5', 'P6', 'C4'];
-  const px = 8.25, py = 1.15, pw = 4.1, ph = 6.15;
+  const poses = ['C1', 'P0', 'P1', 'P2', 'P3', 'P3m', 'P4', 'P5', 'C4'];
+  const px = 7.85, py = 1.3, pw = 4.85, ph = 4.85 * 1.15;
   for (const p of poses) pic(s, `pose_${p}`, await poseImg(p), px, py, pw, ph, 'Мира показывает движение');
   pic(s, 'aud', A.speaker, 12.55, 6.75, 0.5, 0.5, 'Озвучка физкультминутки');
   a.spec.audio.push({ obj: 'aud', file: path.join(ROOT, 'build', 'fizminutka.mp3'), autoplay: true, dur: Math.round(TL.total * 1000) });
@@ -665,6 +666,13 @@ async function slideFiz() {
   notes(s, 'Физкультминутка (2 мин). Озвучка ИИ включается сама, как только открывается слайд. Мира показывает движения, текущая строчка подсвечивается. Два круга: второй — быстрее.\nМы копаем глубоко — наклоны вперёд.\nДостаём руду легко — выпрямиться, поднять руки.\nУголь, глину и песок — повороты вправо-влево.\nИз земли берём мы в срок — приседание.\nНо природу охраняем — руки в стороны.\nЗемлю нашу сохраняем! — руки вверх.\nЧтобы начать заново, вернитесь на предыдущий слайд и снова откройте этот. Значок динамика справа внизу — ручное управление звуком.\nЭта же физкультминутка есть на сайте урока.');
 }
 async function poseImg(code) {
+  const pf = (c) => path.join(IMG, 'pose', c + '.png');
+  if (code === 'P3m' && exists(pf('P3'))) {
+    const out = path.join(AS.OUT, 'pose_P3m.png');
+    await sharp(pf('P3')).flop().png().toFile(out);
+    return out;
+  }
+  if (exists(pf(code))) return pf(code);
   if (code === 'P3m') {
     const src = await ch('P3');
     const out = path.join(AS.OUT, 'pose_P3m.png');
@@ -735,8 +743,8 @@ async function slideT2(part) {
   if (part) {
     box(s, 'ban', { x: 0.6, y: 5.72, w: 9.45, h: 1.22, rectRadius: 0.2, fill: { color: GREEN_L }, shadow: undefined, text: [
       { text: 'Помни: ', options: { bold: true, color: GREEN_D } }, { text: 'металл, бумагу и стекло можно переработать и использовать снова!', options: { bold: true, color: NAVY } }],
-      fontSize: 18, margin: mg(168, 4, 16, 4) });
-    pic(s, 'img', await scene('B10'), 0.8, 5.6, 1.95, 1.46, 'Дети сортируют отходы');
+      fontSize: 18, margin: mg(112, 4, 16, 4) });
+    pic(s, 'img', await AS.badge('FaRecycle', '#1FA463'), 1.0, 5.86, 0.95, 0.95, 'Переработка');
     a.auto('ban', 'float', 900, 500); a.auto('img', 'zoom', 1000, 600);
   }
   homeBtn(s, a);

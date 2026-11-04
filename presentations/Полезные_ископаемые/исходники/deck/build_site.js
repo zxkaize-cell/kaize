@@ -41,7 +41,12 @@ function snd(file) { return 'data:audio/mpeg;base64,' + fs.readFileSync(file).to
 
 async function main() {
   const I = {};
-  for (const c of ['C1', 'C2', 'C3', 'C4', 'C5', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6']) I[c] = await imgData(c, 'char', 640);
+  for (const c of ['C1', 'C3', 'C4']) I[c] = await imgData(c, 'char', 640);
+  const POSE = {};
+  for (const c of ['C1', 'C4', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5']) {
+    const f = path.join(AS.IMG, 'pose', c + '.png');
+    POSE[c] = fs.existsSync(f) ? 'data:image/webp;base64,' + (await sharp(f).resize({ height: 640 }).webp({ quality: 82, alphaQuality: 90 }).toBuffer()).toString('base64') : await imgData(c, 'char', 640);
+  }
   for (const c of ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8']) I[c] = await imgData(c, 'sq', 360);
   const B1 = await sceneData('B1', 1400);
   const R = path.join(ROOT, 'snd', 'raw');
@@ -163,7 +168,7 @@ async function main() {
   <div class="fiz">
     <ol class="poem" id="poem"></ol>
     <div class="stage">
-      <img id="pose" src="${I.C1}" alt="Мира показывает движение">
+      <img id="pose" src="${POSE.C1}" alt="Мира показывает движение">
       <div class="controls">
         <button id="fizPlay" class="play">${ic('FaPlay')}<span>Начать</span></button>
         <button id="fizRestart" class="ghost">${ic('FaArrowsRotate')}<span>Сначала</span></button>
@@ -196,6 +201,7 @@ async function main() {
 
   const script = `<script>
 const IMG = ${JSON.stringify(I)};
+const POSE = ${JSON.stringify(POSE)};
 const SND = ${JSON.stringify(S)};
 const FIZ_SRC = ${JSON.stringify(FIZ)};
 const DATA = ${JSON.stringify(data)};

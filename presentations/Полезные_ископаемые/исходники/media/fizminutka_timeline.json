@@ -267,37 +267,37 @@
   },
   {
    "t": 37.302,
-   "pose": "P6",
+   "pose": "P2",
    "line": 5,
    "round": 1
   },
   {
    "t": 38.302,
-   "pose": "P2",
+   "pose": "P5",
    "line": 5,
    "round": 1
   },
   {
    "t": 39.302,
-   "pose": "P6",
+   "pose": "P2",
    "line": 5,
    "round": 1
   },
   {
    "t": 40.302,
-   "pose": "P2",
+   "pose": "P5",
    "line": 5,
    "round": 1
   },
   {
    "t": 41.302,
-   "pose": "P6",
+   "pose": "P2",
    "line": 5,
    "round": 1
   },
   {
    "t": 42.302,
-   "pose": "P2",
+   "pose": "P5",
    "line": 5,
    "round": 1
   },
@@ -429,25 +429,25 @@
   },
   {
    "t": 68.302,
-   "pose": "P6",
+   "pose": "P2",
    "line": 5,
    "round": 2
   },
   {
    "t": 69.302,
-   "pose": "P2",
+   "pose": "P5",
    "line": 5,
    "round": 2
   },
   {
    "t": 70.302,
-   "pose": "P6",
+   "pose": "P2",
    "line": 5,
    "round": 2
   },
   {
    "t": 71.302,
-   "pose": "P2",
+   "pose": "P5",
    "line": 5,
    "round": 2
   },

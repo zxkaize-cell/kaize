@@ -244,6 +244,24 @@ def add_rel(rels_root, rtype, target, external=False):
     return f"rId{n}"
 
 
+def shrink_pngs(work, limit=180_000):
+    """Large PNG pictures (cut-outs, framed scenes) -> 256-colour palette PNG with alpha; cartoon art keeps its look."""
+    from PIL import Image
+    media = os.path.join(work, "ppt", "media")
+    for f in os.listdir(media):
+        p = os.path.join(media, f)
+        if not f.lower().endswith(".png") or os.path.getsize(p) < limit:
+            continue
+        im = Image.open(p).convert("RGBA")
+        q = im.quantize(colors=256, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.FLOYDSTEINBERG)
+        tmp = p + ".tmp.png"
+        q.save(tmp, optimize=True)
+        if os.path.getsize(tmp) < os.path.getsize(p):
+            os.replace(tmp, p)
+        else:
+            os.remove(tmp)
+
+
 def dedupe_media(work):
     """pptxgenjs stores one copy of an image per slide; keep one file per unique content."""
     import hashlib
@@ -392,6 +410,7 @@ def process(src, spec_path, out, sound_files):
         rels.write(rel_path, xml_declaration=True, encoding="UTF-8", standalone=True)
     ct.write(ct_path, xml_declaration=True, encoding="UTF-8", standalone=True)
     dedupe_media(work)
+    shrink_pngs(work)
     if os.path.exists(out):
         os.remove(out)
     # [Content_Types].xml must be the first entry

@@ -7,7 +7,7 @@ def b(k): return round(phase + k*beat, 3)
 def dur(f): return float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','csv=p=0',f]))
 lines = ["Мы копаем глубоко —", "Достаём руду легко —", "Уголь, глину и песок", "Из земли берём мы в срок.", "Но природу охраняем,", "Землю нашу сохраняем!"]
 moves = ["наклоны вперёд", "выпрямиться, руки вверх", "повороты вправо-влево", "приседания", "руки в стороны", "руки вверх"]
-poses = [("P1","P0"),("P2","P0"),("P3","P3m"),("P4","P0"),("P5","P0"),("P6","P2")]
+poses = [("P1","P0"),("P2","P0"),("P3","P3m"),("P4","P0"),("P5","P0"),("P2","P5")]
 clips=[]; events=[]  # events: {t, line, pose}
 clips.append(("intro", b(1)))
 events.append({"t":0.0,"pose":"C1","line":-1,"caption":"Встаём и повторяем!"})
