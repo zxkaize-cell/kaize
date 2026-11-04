@@ -50,7 +50,7 @@ h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(
 .guide img { height: clamp(220px, 34vw, 380px); width: auto; filter: drop-shadow(0 10px 14px rgba(29, 43, 83, .18)); animation: bob 3.2s ease-in-out infinite; }
 @keyframes bob { 50% { transform: translateY(-8px); } }
 .bubble { position: absolute; left: -8px; top: 6%; max-width: 190px; background: var(--card); color: var(--navy); font-weight: 800; padding: 12px 16px; border-radius: 18px; box-shadow: var(--shadow); font-size: 16px; }
-.cutaway { display: block; width: 100%; max-width: 1120px; margin: 22px auto 0; border-radius: var(--r) var(--r) 0 0; box-shadow: var(--shadow); }
+.cutaway { display: block; width: 100%; max-width: 1120px; margin: 22px auto 0; border-radius: var(--r) var(--r) 0 0; box-shadow: var(--shadow); aspect-ratio: 16 / 7; object-fit: cover; object-position: center 30%; }
 
 /* strata with halls */
 .strata { display: grid; }

@@ -121,16 +121,17 @@ async function build() {
   BG.title = rawPath('TITLE');
   if (BG.title) { const tj = path.join(AS.OUT, 'title_bg.jpg'); await sharp(BG.title).flatten({ background: '#ffffff' }).jpeg({ quality: 90 }).toFile(tj); BG.title = tj; }
   BG.hub = BG.dark;
-  if (rawPath('B1')) {
+  const hubSrc = rawPath('HUB') || rawPath('B1');
+  if (hubSrc) {
     const out = path.join(AS.OUT, 'bg_hub.jpg');
     const ov = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="2667" height="1500"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#14204A" stop-opacity="0.80"/><stop offset="0.75" stop-color="#14204A" stop-opacity="0.55"/><stop offset="1" stop-color="#14204A" stop-opacity="0.30"/></linearGradient></defs><rect width="2667" height="1500" fill="url(#g)"/></svg>`);
-    await sharp(rawPath('B1')).resize(2667, 1500, { fit: 'cover' }).composite([{ input: ov }]).jpeg({ quality: 88 }).toFile(out);
+    await sharp(hubSrc).resize(2667, 1500, { fit: 'cover' }).composite([{ input: ov }]).jpeg({ quality: 88 }).toFile(out);
     BG.hub = out;
   }
   BG.fiz = BG.green;
   if (rawPath('B11')) {
     const out = path.join(AS.OUT, 'bg_fiz.jpg');
-    await sharp(rawPath('B11')).resize(2667, 1500, { fit: 'cover' }).jpeg({ quality: 88 }).toFile(out);
+    await sharp(rawPath('B11')).flop().resize(2667, 1500, { fit: 'cover' }).jpeg({ quality: 88 }).toFile(out);
     BG.fiz = out;
   }
 
@@ -208,13 +209,15 @@ async function slideAkt() {
   const [s, a] = newSlide(S.AKT);
   setBg(s, a, 'light');
   header(s, a, 'РАЗМИНКА ДЛЯ УМА', 'Из чего сделаны эти предметы?');
-  const items = [['FaHouseChimney', 'Дом', 'кирпич, бетон, стекло', '#F2643D'], ['FaRoad', 'Дорога', 'песок, щебень, асфальт', '#5B6B8C'], ['FaWineBottle', 'Бутылка', 'стекло — из песка', '#1FA463'],
-    ['FaGears', 'Деталь', 'металл — из руды', '#4A7BD0'], ['FaCar', 'Машина', 'металл, стекло, бензин', '#EF5B5B'], ['GiBrickWall', 'Кирпич', 'глина', '#D9971A']];
+  const items = [['FaHouseChimney', 'Дом', 'кирпич, бетон, стекло', '#F2643D', 'O1'], ['FaRoad', 'Дорога', 'песок, щебень, асфальт', '#5B6B8C', 'O2'], ['FaWineBottle', 'Бутылка', 'стекло — из песка', '#1FA463', 'O3'],
+    ['FaGears', 'Деталь', 'металл — из руды', '#4A7BD0', 'O4'], ['FaCar', 'Машина', 'металл, стекло, бензин', '#EF5B5B', 'O5'], ['GiBrickWall', 'Кирпич', 'глина', '#D9971A', 'O6']];
   const cw = 2.85, chh = 2.55, gx = 0.22, gy = 0.22, x0 = 0.6, y0 = 1.62;
   for (let i = 0; i < 6; i++) {
     const x = x0 + (i % 3) * (cw + gx), y = y0 + Math.floor(i / 3) * (chh + gy);
     box(s, `c${i}`, { x, y, w: cw, h: chh, rectRadius: 0.2 });
-    pic(s, `im${i}`, await AS.badge(items[i][0], items[i][3], '#FFFFFF', { pad: 0.22 }), x + (cw - 1.35) / 2, y + 0.2, 1.35, 1.35, items[i][1]);
+    const objPath = path.join(IMG, 'cut', items[i][4] + '.png');
+    if (exists(objPath)) pic(s, `im${i}`, objPath, x + (cw - 1.5) / 2, y + 0.12, 1.5, 1.5, items[i][1]);
+    else pic(s, `im${i}`, await AS.badge(items[i][0], items[i][3], '#FFFFFF', { pad: 0.22 }), x + (cw - 1.35) / 2, y + 0.2, 1.35, 1.35, items[i][1]);
     txt(s, `nm${i}`, items[i][1], { x, y: y + 1.64, w: cw, h: 0.36, fontSize: 19, bold: true, align: 'center', color: NAVY });
     box(s, `an${i}`, { x: x + 0.14, y: y + 2.04, w: cw - 0.28, h: 0.4, rectRadius: 0.2, fill: { color: GREEN }, shadow: undefined, text: items[i][2], color: WHITE, bold: true, fontSize: 14, align: 'center', margin: mg(4, 0, 4, 0) });
     hit(s, `h${i}`, x, y, cw, chh);
@@ -550,8 +553,9 @@ async function slideSt7() {
   const [s, a] = newSlide(S.ST7);
   setBg(s, a, 'light');
   stationHead(s, a, 7, 'Почему ископаемые нужно беречь?');
-  pic(s, 'img', await scene('B2'), 0.45, 1.5, 4.7, 3.525, 'Карьер');
-  box(s, 'cap', { x: 0.8, y: 4.3, w: 3.1, h: 0.5, rectRadius: 0.25, fill: { color: GREEN_D }, shadow: undefined, text: 'Запасы не бесконечны!', color: WHITE, bold: true, fontSize: 15, align: 'center' });
+  const hasForest = !!rawPath('B8');
+  pic(s, 'img', await scene(hasForest ? 'B8' : 'B2'), 0.45, 1.5, 4.7, 3.525, hasForest ? 'Древний лес' : 'Карьер');
+  box(s, 'cap', { x: 0.8, y: 4.3, w: 3.1, h: 0.5, rectRadius: 0.25, fill: { color: GREEN_D }, shadow: undefined, text: hasForest ? 'Миллионы лет назад…' : 'Запасы не бесконечны!', color: WHITE, bold: true, fontSize: 15, align: 'center' });
   box(s, 'q', { x: 5.35, y: 1.6, w: 7.4, h: 1.3, rectRadius: 0.22, fill: { color: CORAL_L }, shadow: undefined, text: 'Что будет, если добывать полезные ископаемые и совсем не думать о будущем?', fontSize: 19, bold: true, color: NAVY, margin: mg(78, 8, 16, 8) });
   pic(s, 'qi', await AS.badge('FaQuestion', '#EF5B5B'), 5.55, 1.94, 0.62, 0.62);
   const cons = ['Запасы уменьшатся', 'Некоторые закончатся', 'Разрушится почва', 'Изменится природа', 'Появится загрязнение'];
@@ -743,8 +747,9 @@ async function slideT2(part) {
   if (part) {
     box(s, 'ban', { x: 0.6, y: 5.72, w: 9.45, h: 1.22, rectRadius: 0.2, fill: { color: GREEN_L }, shadow: undefined, text: [
       { text: 'Помни: ', options: { bold: true, color: GREEN_D } }, { text: 'металл, бумагу и стекло можно переработать и использовать снова!', options: { bold: true, color: NAVY } }],
-      fontSize: 18, margin: mg(112, 4, 16, 4) });
-    pic(s, 'img', await AS.badge('FaRecycle', '#1FA463'), 1.0, 5.86, 0.95, 0.95, 'Переработка');
+      fontSize: 18, margin: mg(rawPath('B10') ? 160 : 112, 4, 16, 4) });
+    if (rawPath('B10')) pic(s, 'img', await scene('B10'), 0.75, 5.58, 2.0, 1.5, 'Дети сортируют отходы');
+    else pic(s, 'img', await AS.badge('FaRecycle', '#1FA463'), 1.0, 5.86, 0.95, 0.95, 'Переработка');
     a.auto('ban', 'float', 900, 500); a.auto('img', 'zoom', 1000, 600);
   }
   homeBtn(s, a);

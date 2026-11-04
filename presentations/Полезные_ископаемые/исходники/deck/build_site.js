@@ -48,7 +48,9 @@ async function main() {
     POSE[c] = fs.existsSync(f) ? 'data:image/webp;base64,' + (await sharp(f).resize({ height: 640 }).webp({ quality: 82, alphaQuality: 90 }).toBuffer()).toString('base64') : await imgData(c, 'char', 640);
   }
   for (const c of ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8']) I[c] = await imgData(c, 'sq', 360);
-  const B1 = await sceneData('B1', 1400);
+  const B1 = (await sceneData('HUB', 1600)) || (await sceneData('B1', 1400));
+  let MEADOW = null;
+  for (const e of ['.png', '.jpg']) { const f = path.join(AS.IMG, 'raw', 'B11' + e); if (fs.existsSync(f)) MEADOW = 'data:image/jpeg;base64,' + (await sharp(f).flop().resize({ width: 1200 }).jpeg({ quality: 78 }).toBuffer()).toString('base64'); }
   const R = path.join(ROOT, 'snd', 'raw');
   const S = {
     correct: snd(path.join(R, 'sfx_2870.mp3')), wrong: snd(path.join(R, 'sfx_2876.mp3')), pop: snd(path.join(R, 'sfx_2357.mp3')),
@@ -167,7 +169,7 @@ async function main() {
   <div class="game-head"><a class="back" href="#home">${ic('FaArrowLeft')} К карте</a><h2>Физкультминутка</h2><p class="task"><span class="ai">${ic('FaWandMagicSparkles')} Озвучивает ИИ</span> Встань и повторяй движения за Мирой!</p></div>
   <div class="fiz">
     <ol class="poem" id="poem"></ol>
-    <div class="stage">
+    <div class="stage"${MEADOW ? ` style="background-image: url(${MEADOW}); background-size: cover; background-position: center bottom;"` : ""}>
       <img id="pose" src="${POSE.C1}" alt="Мира показывает движение">
       <div class="controls">
         <button id="fizPlay" class="play">${ic('FaPlay')}<span>Начать</span></button>

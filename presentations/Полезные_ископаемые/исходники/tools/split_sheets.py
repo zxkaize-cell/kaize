@@ -80,5 +80,7 @@ if __name__ == "__main__":
         figures(sheet, 2, 2, codes, 2 / 3, True)
     elif kind == "minerals":
         figures(sheet, 4, 2, codes, 1.0, False)
+    elif kind == "objects":
+        figures(sheet, 3, 2, codes, 1.0, False)
     else:
         panels(sheet, codes)
